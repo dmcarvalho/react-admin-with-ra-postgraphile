@@ -1,25 +1,27 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react'
+import { Admin, Resource } from 'react-admin'
+import { useApolloClient } from '@apollo/react-hooks'
+import pgDataProvider from 'ra-postgraphile'
+import { PeopleList } from './People'
 
-function App() {
+const App = () => {
+  const [dataProvider, setDataProvider] = useState(null)
+  const client = useApolloClient()
+
+  useEffect(() => {
+    (async () => {
+      const dataProvider = await pgDataProvider(client)
+      setDataProvider(() => dataProvider)
+    })()
+  }, [])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    dataProvider && (
+      <Admin dataProvider={dataProvider}>
+        <Resource name="Person" list={PeopleList} />
+      </Admin>
+    )
+  )
 }
 
-export default App;
+export default App
